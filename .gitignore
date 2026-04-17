@@ -25,3 +25,4 @@ Makefile
 
 # Installer
 BatteryTracker_Setup/
+*.iss
