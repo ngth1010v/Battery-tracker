@@ -5,9 +5,9 @@
 namespace Popup
 {
     // ===== COLOR CONFIG =====
-    inline const int LOW_COLOR[3] = { 255, 0, 0 };
-    inline const int WARNING_COLOR[3] = { 255, 255, 0 };
-    inline const int GOOD_COLOR[3] = { 0, 255, 0 };
+    int LOW_COLOR[3] = { 255, 0, 0 };
+    int WARNING_COLOR[3] = { 255, 255, 0 };
+    int GOOD_COLOR[3] = { 0, 255, 0 };
 
     // ===== API =====
     void Init(HINSTANCE hInstance, float scale = 1.0f);
