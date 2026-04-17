@@ -30,7 +30,7 @@ const bool ACTIVE_POPUP                     = true;
 const float POPUP_SCALE                     = 1;
 
 // Other
-const bool DEBUGING                         = true;
+const bool DEBUGING                         = false;
 
 
 
