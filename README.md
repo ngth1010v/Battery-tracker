@@ -8,6 +8,13 @@
 
 ---
 
+## ⚠️ Requirements
+
+* 💻 **Laptop only** (requires battery hardware)
+* 🪟 Windows OS
+
+---
+
 ## ✨ Features
 
 * 🔔 **Smart battery alerts**
@@ -47,6 +54,28 @@
 
 ---
 
+## 🛡️ Windows Defender Warning
+
+> ⚠️ This app may be flagged by Windows Defender as an unknown application.
+
+This happens because:
+
+* The app is **not code signed**
+* It is a **new / low-distribution executable**
+
+### ✅ How to run anyway
+
+1. When SmartScreen appears → click **"More info"**
+2. Click **"Run anyway"**
+
+### 🔒 Safety note
+
+* This project is **fully open-source**
+* You can **build it yourself from source**
+* No hidden or malicious behavior
+
+---
+
 ## 🚀 Usage
 
 * No configuration needed
@@ -66,25 +95,9 @@
 ### Build steps
 
 ```bash
-git clone https://github.com/yourname/battery-tracker.git
+git clone https://github.com/ngth1010v/battery-tracker.git
 cd battery-tracker
 build.bat
-```
-
----
-
-## 📁 Project Structure
-
-```
-battery-tracker/
-├── src/
-├── include/
-├── CMakeLists.txt
-├── build.bat
-├── installer/
-│   └── setup.iss
-└── assets/
-    └── popup.png
 ```
 
 ---
