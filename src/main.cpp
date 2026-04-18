@@ -170,7 +170,7 @@ void render()
     // ======================
     // NOTIFICATION
     // ======================
-    if (Tray::IsNotificationActive() && !g_warningState.empty())
+    if (Tray::IsActive() && !g_warningState.empty())
     {
         if (g_warningState != g_prevWarningState ||
             abs(g_percent - g_prevNotificationPercent) >= cfg.REPEAT_NOTIFICATION_AFTER_PERCENT)
@@ -187,7 +187,7 @@ void render()
     // ======================
     // POPUP
     // ======================
-    if (Tray::IsPopupActive())
+    if (Tray::IsActive())
     {
         if (!g_warningState.empty())
         {
