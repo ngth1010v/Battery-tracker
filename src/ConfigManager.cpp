@@ -52,7 +52,7 @@ bool ConfigManager::ensureFileExists() {
 
     std::ofstream out(filePath);
     out << "[threshold]\nlow=30\nwarning_low=40\nwarning_high=80\nhigh=90\n";
-    out << "[timing]\ninterval_check=5000\ninterval_warning=1000\n";
+    out << "[timing]\ninterval_check=1000\ninterval_warning=1000\n";
     out << "[feature]\nrepeat_notify=5\n";
     out << "[ui]\npopup_scale=1.0\n";
     out << "[debug]\nenable=0\n";
