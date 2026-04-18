@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <algorithm>
 
 #include "batteryApi.h"
 #include "WarningIcon.h"
@@ -127,7 +128,6 @@ void eventHandle()
     if (g_configEvent && WaitForSingleObject(g_configEvent, 0) == WAIT_OBJECT_0)
     {
         ResetEvent(g_configEvent);
-        g_lastCheckTimestamp = 0; // force recheck
     }
 }
 
@@ -140,16 +140,6 @@ void render()
 {
     const auto& cfg = g_cfg->get();
 
-    ULONGLONG now = GetTickCount64();
-
-    int interval = cfg.INTERVAL_CHECK;
-
-
-    if (g_lastCheckTimestamp != 0 &&
-        (now - g_lastCheckTimestamp) < (ULONGLONG)interval)
-    {
-        return;
-    }
 
     // ======================
     // READ BATTERY
@@ -157,6 +147,9 @@ void render()
     g_prevPercent = g_percent;
     g_percent = Battery::GetBatteryPercent();
     g_charging = Battery::IsCharging();
+
+    //DEBUG
+    g_percent = 90;
 
     // ======================
     // STATE UPDATE
@@ -261,11 +254,12 @@ void destroy()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 
-    if (!Battery::HasBattery())
-    {
-        std::cout << "No battery found!";
-        return 0;
-    }
+    //DEBUG
+    // if (!Battery::HasBattery())
+    // {
+    //     std::cout << "No battery found!";
+    //     return 0;
+    // }
 
     init(hInstance);
 
@@ -275,6 +269,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         if (!g_running) break;
 
         render();
+
+        const auto& cfg = g_cfg->get();
+        int sleepTime = std::max(500, cfg.INTERVAL_CHECK);
+
+        WaitForSingleObject(g_configEvent, sleepTime);
+        ResetEvent(g_configEvent);
     }
 
     destroy();

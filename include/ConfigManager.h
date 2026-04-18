@@ -18,7 +18,7 @@ public:
         // =====================
         // TIMING
         // =====================
-        int INTERVAL_CHECK = 1000;
+        int INTERVAL_CHECK = 500;
 
         // =====================
         // NOTIFICATION

@@ -78,7 +78,7 @@ bool ConfigManager::ensureFileExists() {
         "HIGH_THRESHOLD=90\n\n"
 
         "[timing]\n"
-        "INTERVAL_CHECK=1000\n\n"
+        "INTERVAL_CHECK=500\n\n"
 
         "[notification]\n"
         "ACTIVE_NOTIFICATION=1\n"

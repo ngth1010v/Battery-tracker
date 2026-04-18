@@ -8,6 +8,8 @@
 
 using namespace Gdiplus;
 
+
+
 std::wstring ToWString(const std::string& s)
 {
     int size = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
@@ -31,6 +33,7 @@ namespace Popup
     Gdiplus::Image* g_icon = nullptr;
 
     float g_scale = 1.0f;
+    bool g_visible = false;
 
     // ================= SCALE =================
     int S(int v) {
@@ -192,9 +195,12 @@ namespace Popup
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            RECT r;
-            GetClientRect(hwnd, &r);
-            DrawUI(hdc, r);
+            if (g_visible)
+            {
+                RECT r;
+                GetClientRect(hwnd, &r);
+                DrawUI(hdc, r);
+            }
 
             EndPaint(hwnd, &ps);
             return 0;
@@ -241,6 +247,8 @@ namespace Popup
         const std::string& desc,
         int lt, int wlt, int wht, int ht)
     {
+        g_visible = true;
+
         g_percent = percent;
         g_title = ToWString(title);
         g_desc = ToWString(desc);
@@ -268,8 +276,14 @@ namespace Popup
 
     void Hide()
     {
-        if (g_hwnd)
-            ShowWindow(g_hwnd, SW_HIDE);
+        if (!g_hwnd) return;
+
+        g_visible = false;
+
+        // move ra ngoài màn hình thay vì hide
+        SetWindowPos(g_hwnd, HWND_TOPMOST,
+            -1000 * g_scale, -1000 * g_scale, 0, 0,
+            SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
     }
 
     void Shutdown()
