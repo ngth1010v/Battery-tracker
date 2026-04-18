@@ -173,6 +173,9 @@ void render()
             g_prevNotificationPercent = g_percent;
         }
     }
+    else {
+        g_prevNotificationPercent = -100;
+    }
 
     // ======================
     // POPUP
