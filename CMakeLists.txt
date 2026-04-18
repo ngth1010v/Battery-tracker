@@ -19,7 +19,10 @@ add_executable(BatteryTracker
     resource/resource.rc
 )
 
-target_include_directories(BatteryTracker PRIVATE include)
+target_include_directories(BatteryTracker PRIVATE 
+    include
+    resource
+)
 
 # =========================
 # LINK LIBRARIES (SAU KHI TẠO TARGET)

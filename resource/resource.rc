@@ -1,4 +1,7 @@
 #include "resource.h"
 
-IDR_WARNING_ICON PNG "../assets/warning.png"
 IDI_ICON1 ICON "../assets/battery.ico"
+IDR_WARNING_ICON PNG "../assets/warning.png"
+
+IDI_ICON_ON  ICON "../assets/battery.ico"
+IDI_ICON_OFF ICON "../assets/battery-off.ico"

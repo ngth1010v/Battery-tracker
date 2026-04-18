@@ -34,6 +34,7 @@ void ConfigManager::set(const DataPack& newData) {
     cache = newData;
     saveToFile();
     lastFileTime = getFileTime();
+    SetEvent(g_configEvent);
 }
 
 // =========================================================

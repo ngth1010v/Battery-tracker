@@ -10,12 +10,17 @@
 #include "Notification.h"
 #include "Popup.h"
 #include "ConfigManager.h"
+#include "Tray.h"
+
+
 
 // ======================================================================================================================
 // GLOBAL CONTROL
 // ======================================================================================================================
 bool g_running = true;
 HANDLE g_exitEvent = NULL;
+
+
 
 // ======================================================================================================================
 // CONSOLE HANDLER
@@ -32,6 +37,8 @@ BOOL WINAPI ConsoleHandler(DWORD signal) {
     }
     return FALSE;
 }
+
+
 
 // ======================================================================================================================
 // UTILS
@@ -59,25 +66,41 @@ std::string getDesc(const std::string& warningState) {
 }
 
 // Delay KHÔNG BLOCK hoàn toàn
-void delaySmart(const std::string& warningState, const ConfigManager::DataPack& cfg) {
+void delaySmart(const std::string& warningState, const ConfigManager::DataPack& cfg)
+{
     int total = (warningState != "") ?
         cfg.INTERVAL_CHECK_WHEN_WARNING :
         cfg.INTERVAL_CHECK;
 
-    int step = 100;
-    int elapsed = 0;
+    DWORD start = GetTickCount();
 
-    while (elapsed < total && g_running) {
-
-        if (g_exitEvent && WaitForSingleObject(g_exitEvent, 0) == WAIT_OBJECT_0) {
+    while (g_running)
+    {
+        // 1. EXIT EVENT
+        if (g_exitEvent &&
+            WaitForSingleObject(g_exitEvent, 0) == WAIT_OBJECT_0)
+        {
             g_running = false;
             break;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(step));
-        elapsed += step;
+        // 2. CONFIG CHANGE → WAKE IMMEDIATELY
+        if (g_configEvent &&
+            WaitForSingleObject(g_configEvent, 0) == WAIT_OBJECT_0)
+        {
+            ResetEvent(g_configEvent);
+            break; // 👉 WAKE MAIN LOOP NGAY
+        }
+
+        // 3. ENOUGH DELAY TIME → EXIT
+        if ((int)(GetTickCount() - start) >= total)
+            break;
+
+        Sleep(10); // nhẹ CPU, nhưng vẫn responsive
     }
 }
+
+
 
 // ======================================================================================================================
 // MAIN
@@ -87,16 +110,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     SetConsoleCtrlHandler(ConsoleHandler, TRUE);
 
     g_exitEvent = CreateEvent(NULL, TRUE, FALSE, L"BatteryTrackerExitEvent");
+    g_configEvent = CreateEvent(NULL, TRUE, FALSE, L"BatteryTrackerConfigEvent");
 
-    // =========================================================
-    // LOAD CONFIG (ONLY ONCE - CACHE INSIDE MANAGER)
-    // =========================================================
     ConfigManager& configManager = ConfigManager::Instance();
     const auto& cfg = configManager.get();
 
-    // =========================================================
-    // STATE
-    // =========================================================
     int percent = 0;
     int prevPercent = 0;
     bool charging = false;
@@ -107,25 +125,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     int prevNotificationPercent = 0;
     bool popupOpening = false;
 
-    // =========================================================
-    // CHECK BATTERY
-    // =========================================================
-    if (Battery::HasBattery() || cfg.DEBUGGING) {
 
+
+    if (Battery::HasBattery() || cfg.DEBUGGING)
+    {
         WarningIcon::Init();
         Notification::Init();
         Popup::Init(hInstance, cfg.POPUP_SCALE);
+        Tray::Init(hInstance);
 
-        // =====================================================
-        // MAIN LOOP
-        // =====================================================
-        while (g_running) {
-
-            // MESSAGE LOOP
+        while (g_running)
+        {
             MSG msg;
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-
-                if (msg.message == WM_QUIT) {
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            {
+                if (msg.message == WM_QUIT)
+                {
                     g_running = false;
                     break;
                 }
@@ -138,14 +153,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
             std::cout << "Check...\n";
 
-            // =====================================================
-            // GET DATA
-            // =====================================================
             prevPercent = percent;
             percent = Battery::GetBatteryPercent();
             charging = Battery::IsCharging();
 
-            if (cfg.DEBUGGING) {
+            if (cfg.DEBUGGING)
+            {
                 std::cout << "[DEBUG] Input percent: ";
                 std::cin >> percent;
 
@@ -158,36 +171,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
             prevWarningState = warningState;
             warningState = checkWarning(percent, charging, cfg);
 
-            // =====================================================
+            // =========================
             // NOTIFICATION
-            // =====================================================
-            if (cfg.ACTIVE_NOTIFICATION) {
+            // =========================
+            if (cfg.ACTIVE_NOTIFICATION && !warningState.empty())
+            {
+                if (warningState != prevWarningState ||
+                    abs(percent - prevNotificationPercent) >= cfg.REPEAT_NOTIFICATION_AFTER_PERCENT)
+                {
+                    Notification::Show(
+                        getTitle(warningState) + " (" + std::to_string(percent) + "%)",
+                        getDesc(warningState)
+                    );
 
-                if (!warningState.empty()) {
-
-                    if (warningState != prevWarningState ||
-                        abs(percent - prevNotificationPercent) >= cfg.REPEAT_NOTIFICATION_AFTER_PERCENT)
-                    {
-                        std::string title =
-                            getTitle(warningState) + " (" + std::to_string(percent) + "%)";
-
-                        Notification::Show(title, getDesc(warningState));
-
-                        prevNotificationPercent = percent;
-                    }
+                    prevNotificationPercent = percent;
                 }
             }
 
-            // =====================================================
+            // =========================
             // POPUP
-            // =====================================================
-            if (cfg.ACTIVE_POPUP) {
-
-                if (!warningState.empty()) {
-
-                    popupOpening = true;
-
-                    if (warningState != prevWarningState || percent != prevPercent) {
+            // =========================
+            if (cfg.ACTIVE_POPUP)
+            {
+                if (!warningState.empty())
+                {
+                    if (warningState != prevWarningState || percent != prevPercent || !popupOpening)
+                    {
                         Popup::Show(
                             percent,
                             getTitle(warningState),
@@ -198,40 +207,59 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                             cfg.HIGH_THRESHOLD
                         );
                     }
+                    popupOpening = true;
                 }
-                else {
-                    if (popupOpening) {
+                else
+                {
+                    if (popupOpening)
+                    {
                         Popup::Hide();
                         popupOpening = false;
                     }
                 }
             }
+            else {
+                std::cout << "LOGGGG\n";
+                if (popupOpening)
+                {
+                    Popup::Hide();
+                    popupOpening = false;
+                }
+            }
 
             std::cout << "Result: " << warningState << "\n\n";
 
-            // =====================================================
-            // DELAY
-            // =====================================================
+            // =========================
+            // INTERRUPTIBLE DELAY
+            // =========================
             delaySmart(warningState, cfg);
         }
 
-        // =========================================================
-        // CLEANUP
-        // =========================================================
         std::cout << "Shutting down...\n";
 
         Popup::Hide();
         Popup::Shutdown();
         WarningIcon::Shutdown();
     }
-    else {
+    else
+    {
         std::cout << "No battery found!";
     }
 
-    if (g_exitEvent) {
+    if (g_exitEvent)
+    {
         CloseHandle(g_exitEvent);
         g_exitEvent = NULL;
     }
 
+    if (g_configEvent)
+    {
+        CloseHandle(g_configEvent);
+        g_configEvent = NULL;
+    }
+
     return 0;
 }
+
+
+

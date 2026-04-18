@@ -2,10 +2,14 @@
 #include <string>
 #include <windows.h>
 
+HANDLE g_configEvent = NULL;
+
 class ConfigManager {
 public:
+    bool changed = false;
 
     struct DataPack {
+        
         int LOW_THRESHOLD = 30;
         int WARNING_LOW_THRESHOLD = 40;
         int WARNING_HIGH_THRESHOLD = 80;
@@ -20,7 +24,7 @@ public:
         bool ACTIVE_POPUP = true;
         float POPUP_SCALE = 1.0f;
 
-        bool DEBUGGING = false;
+        bool DEBUGGING = true;
     };
 
 public:
@@ -28,6 +32,10 @@ public:
 
     const DataPack& get();
     void set(const DataPack& newData);
+    static bool IsAnyActive(const ConfigManager::DataPack& cfg)
+    {
+        return cfg.ACTIVE_NOTIFICATION || cfg.ACTIVE_POPUP;
+    }
 
 private:
     ConfigManager();
