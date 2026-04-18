@@ -6,21 +6,31 @@ extern HANDLE g_configEvent;
 
 class ConfigManager {
 public:
-    bool changed = false;
-
     struct DataPack {
+        // =====================
+        // THRESHOLDS
+        // =====================
         int LOW_THRESHOLD = 30;
         int WARNING_LOW_THRESHOLD = 40;
         int WARNING_HIGH_THRESHOLD = 80;
         int HIGH_THRESHOLD = 90;
 
+        // =====================
+        // TIMING
+        // =====================
         int INTERVAL_CHECK = 1000;
 
+        // =====================
+        // NOTIFICATION
+        // =====================
+        bool ACTIVE_NOTIFICATION = true;
         int REPEAT_NOTIFICATION_AFTER_PERCENT = 5;
 
+        // =====================
+        // UI
+        // =====================
         float POPUP_SCALE = 1.0f;
-
-        bool DEBUGGING = true;
+        bool ACTIVE_POPUP = true;
     };
 
 public:
