@@ -3,15 +3,14 @@
 #include <windows.h>
 #include <shlwapi.h>
 #include <string>
+
 #pragma comment(lib, "Shlwapi.lib")
 
-// =========================================================
 ConfigManager& ConfigManager::Instance() {
     static ConfigManager inst;
     return inst;
 }
 
-// =========================================================
 ConfigManager::ConfigManager() {
     filePath = getConfigPath();
     ensureFileExists();
@@ -21,7 +20,6 @@ ConfigManager::ConfigManager() {
 
 ConfigManager::~ConfigManager() {}
 
-// =========================================================
 const ConfigManager::DataPack& ConfigManager::get() {
     if (isFileModified()) {
         loadFromFile();
@@ -34,10 +32,11 @@ void ConfigManager::set(const DataPack& newData) {
     cache = newData;
     saveToFile();
     lastFileTime = getFileTime();
-    SetEvent(g_configEvent);
+
+    if (g_configEvent)
+        SetEvent(g_configEvent);
 }
 
-// =========================================================
 std::string ConfigManager::getConfigPath() {
     char path[MAX_PATH];
     GetModuleFileNameA(NULL, path, MAX_PATH);
@@ -47,7 +46,6 @@ std::string ConfigManager::getConfigPath() {
     return p.substr(0, pos + 1) + "config.ini";
 }
 
-// =========================================================
 bool ConfigManager::ensureFileExists() {
     std::ifstream f(filePath);
     if (f.good()) return true;
@@ -55,14 +53,13 @@ bool ConfigManager::ensureFileExists() {
     std::ofstream out(filePath);
     out << "[threshold]\nlow=30\nwarning_low=40\nwarning_high=80\nhigh=90\n";
     out << "[timing]\ninterval_check=5000\ninterval_warning=1000\n";
-    out << "[feature]\nnotification=1\nrepeat_notify=5\npopup=1\n";
+    out << "[feature]\nrepeat_notify=5\n";
     out << "[ui]\npopup_scale=1.0\n";
     out << "[debug]\nenable=0\n";
 
     return true;
 }
 
-// =========================================================
 long long ConfigManager::getFileTime() {
     WIN32_FILE_ATTRIBUTE_DATA info;
     if (!GetFileAttributesExA(filePath.c_str(), GetFileExInfoStandard, &info))
@@ -79,9 +76,7 @@ bool ConfigManager::isFileModified() {
     return getFileTime() != lastFileTime;
 }
 
-// =========================================================
 void ConfigManager::loadFromFile() {
-
     DataPack def;
 
     cache.LOW_THRESHOLD = readInt("threshold", "low", def.LOW_THRESHOLD);
@@ -92,19 +87,15 @@ void ConfigManager::loadFromFile() {
     cache.INTERVAL_CHECK = readInt("timing", "interval_check", def.INTERVAL_CHECK);
     cache.INTERVAL_CHECK_WHEN_WARNING = readInt("timing", "interval_warning", def.INTERVAL_CHECK_WHEN_WARNING);
 
-    cache.ACTIVE_NOTIFICATION = readBool("feature", "notification", def.ACTIVE_NOTIFICATION);
     cache.REPEAT_NOTIFICATION_AFTER_PERCENT =
         readInt("feature", "repeat_notify", def.REPEAT_NOTIFICATION_AFTER_PERCENT);
 
-    cache.ACTIVE_POPUP = readBool("feature", "popup", def.ACTIVE_POPUP);
     cache.POPUP_SCALE = readFloat("ui", "popup_scale", def.POPUP_SCALE);
 
     cache.DEBUGGING = readBool("debug", "enable", def.DEBUGGING);
 }
 
-// =========================================================
 void ConfigManager::saveToFile() {
-
     WritePrivateProfileStringA("threshold", "low", std::to_string(cache.LOW_THRESHOLD).c_str(), filePath.c_str());
     WritePrivateProfileStringA("threshold", "warning_low", std::to_string(cache.WARNING_LOW_THRESHOLD).c_str(), filePath.c_str());
     WritePrivateProfileStringA("threshold", "warning_high", std::to_string(cache.WARNING_HIGH_THRESHOLD).c_str(), filePath.c_str());
@@ -113,17 +104,12 @@ void ConfigManager::saveToFile() {
     WritePrivateProfileStringA("timing", "interval_check", std::to_string(cache.INTERVAL_CHECK).c_str(), filePath.c_str());
     WritePrivateProfileStringA("timing", "interval_warning", std::to_string(cache.INTERVAL_CHECK_WHEN_WARNING).c_str(), filePath.c_str());
 
-    WritePrivateProfileStringA("feature", "notification", cache.ACTIVE_NOTIFICATION ? "1" : "0", filePath.c_str());
     WritePrivateProfileStringA("feature", "repeat_notify", std::to_string(cache.REPEAT_NOTIFICATION_AFTER_PERCENT).c_str(), filePath.c_str());
-    WritePrivateProfileStringA("feature", "popup", cache.ACTIVE_POPUP ? "1" : "0", filePath.c_str());
 
     WritePrivateProfileStringA("ui", "popup_scale", std::to_string(cache.POPUP_SCALE).c_str(), filePath.c_str());
     WritePrivateProfileStringA("debug", "enable", cache.DEBUGGING ? "1" : "0", filePath.c_str());
 }
 
-// =========================================================
-// READ FUNCTIONS (FIX MISSING CAUSE OF ERROR)
-// =========================================================
 int ConfigManager::readInt(const char* section, const char* key, int def) {
     return GetPrivateProfileIntA(section, key, def, filePath.c_str());
 }
@@ -134,7 +120,6 @@ bool ConfigManager::readBool(const char* section, const char* key, bool def) {
 
 float ConfigManager::readFloat(const char* section, const char* key, float def) {
     char buf[32];
-    GetPrivateProfileStringA(section, key, std::to_string(def).c_str(),
-        buf, 32, filePath.c_str());
+    GetPrivateProfileStringA(section, key, std::to_string(def).c_str(), buf, 32, filePath.c_str());
     return std::stof(buf);
 }
