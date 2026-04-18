@@ -65,3 +65,5 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+[UninstallRun]
+Filename: "taskkill.exe"; Parameters: "/F /IM BatteryTracker.exe"; Flags: runhidden
