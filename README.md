@@ -19,8 +19,8 @@
 
 * 🔔 **Smart battery alerts**
 
-  * Notify when battery drops below **40%**
-  * Notify when battery exceeds **80%**
+  * Notify when battery drops below **40%** and not plugged in.
+  * Notify when battery exceeds **80%** and still plugged in.
 
 * 🪟 **Dual notification system**
 
@@ -30,10 +30,32 @@
 * ⚡ **Lightweight & silent**
 
   * Runs in background
-  * No taskbar icon
+  * No taskbar icon (main UI hidden)
   * Minimal resource usage
 
 * 🚀 **Auto start with Windows**
+
+* 🧭 **System tray control**
+
+  * App runs with a **tray icon on taskbar system tray**
+  * Allows **quick toggle ON / OFF tracker**
+  * Right-click / interaction from tray for fast control
+
+* ⚙️ **Configurable via config.ini**
+
+  * App supports external configuration file: `config.ini`
+  * File is located **next to the BatteryTracker.exe file**
+  * Allows users to modify thresholds and behavior without recompiling
+
+  ### 🛠️ How to edit config
+
+  * Open `config.ini`
+  * Edit values as needed
+  * Save file
+  * Then apply changes by:
+
+    * Restarting tracker from system tray **OR**
+    * Restarting the computer
 
 ---
 
@@ -50,7 +72,7 @@
 1. Go to **Releases**
 2. Download latest `.exe`
 3. Run installer
-4. Done — app will run automatically
+4. Done — app will run automatically every time you open Windows
 
 ---
 
@@ -78,7 +100,7 @@ This happens because:
 
 ## 🚀 Usage
 
-* No configuration needed
+* No configuration needed (optional config via `config.ini`)
 * App runs silently in background
 * Automatically monitors battery status
 
@@ -106,6 +128,7 @@ build.bat
 
 * Designed specifically for **Li-ion battery health optimization**
 * Recommended usage range: **40% – 80%**
+* Tray + config system added for better control and customization
 
 ---
 
