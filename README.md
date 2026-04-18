@@ -117,7 +117,7 @@ This happens because:
 ### Build steps
 
 ```bash
-git clone https://github.com/ngth1010v/battery-tracker.git
+git clone https://github.com/ngth1010v/Battery-tracker.git
 cd battery-tracker
 build.bat
 ```
