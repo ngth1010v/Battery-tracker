@@ -142,9 +142,8 @@ void render()
 
     ULONGLONG now = GetTickCount64();
 
-    int interval = (g_warningState.empty())
-        ? cfg.INTERVAL_CHECK
-        : cfg.INTERVAL_CHECK_WHEN_WARNING;
+    int interval = cfg.INTERVAL_CHECK;
+
 
     if (g_lastCheckTimestamp != 0 &&
         (now - g_lastCheckTimestamp) < (ULONGLONG)interval)

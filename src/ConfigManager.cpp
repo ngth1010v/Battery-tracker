@@ -85,7 +85,6 @@ void ConfigManager::loadFromFile() {
     cache.HIGH_THRESHOLD = readInt("threshold", "high", def.HIGH_THRESHOLD);
 
     cache.INTERVAL_CHECK = readInt("timing", "interval_check", def.INTERVAL_CHECK);
-    cache.INTERVAL_CHECK_WHEN_WARNING = readInt("timing", "interval_warning", def.INTERVAL_CHECK_WHEN_WARNING);
 
     cache.REPEAT_NOTIFICATION_AFTER_PERCENT =
         readInt("feature", "repeat_notify", def.REPEAT_NOTIFICATION_AFTER_PERCENT);
@@ -102,7 +101,6 @@ void ConfigManager::saveToFile() {
     WritePrivateProfileStringA("threshold", "high", std::to_string(cache.HIGH_THRESHOLD).c_str(), filePath.c_str());
 
     WritePrivateProfileStringA("timing", "interval_check", std::to_string(cache.INTERVAL_CHECK).c_str(), filePath.c_str());
-    WritePrivateProfileStringA("timing", "interval_warning", std::to_string(cache.INTERVAL_CHECK_WHEN_WARNING).c_str(), filePath.c_str());
 
     WritePrivateProfileStringA("feature", "repeat_notify", std::to_string(cache.REPEAT_NOTIFICATION_AFTER_PERCENT).c_str(), filePath.c_str());
 

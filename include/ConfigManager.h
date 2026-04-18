@@ -15,7 +15,6 @@ public:
         int HIGH_THRESHOLD = 90;
 
         int INTERVAL_CHECK = 5000;
-        int INTERVAL_CHECK_WHEN_WARNING = 1000;
 
         int REPEAT_NOTIFICATION_AFTER_PERCENT = 5;
 
