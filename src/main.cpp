@@ -148,8 +148,6 @@ void render()
     g_percent = Battery::GetBatteryPercent();
     g_charging = Battery::IsCharging();
 
-    //DEBUG
-    g_percent = 90;
 
     // ======================
     // STATE UPDATE
@@ -257,12 +255,11 @@ void destroy()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 
-    //DEBUG
-    // if (!Battery::HasBattery())
-    // {
-    //     std::cout << "No battery found!";
-    //     return 0;
-    // }
+    if (!Battery::HasBattery())
+    {
+        std::cout << "No battery found!";
+        return 0;
+    }
 
     init(hInstance);
 
